@@ -1,0 +1,8 @@
+tensorflow-gpu==2.0.0-alpha0
+h5py==2.10.0
+numpy>=1.11.0
+nibabel>=2.2.1
+statsmodels>=0.8.0
+tqdm>=4.15.0
+scipy>=0.18.1
+scikit_learn>=0.19.0
