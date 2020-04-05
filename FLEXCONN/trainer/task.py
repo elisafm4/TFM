@@ -173,22 +173,22 @@ def copy_file_to_gcs(job_dir, file_path):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='FLEXCONN Segmentation Training')
     
-    parser.add_argument('--atlasdir', required=True,
+    parser.add_argument('--atlasdir', default="gs://flexconn-model/tfm-images/Atlas_train",
                         help='Directory containing atlas images. Images should be in NIFTI (.nii or .nii.gz) and be '
                              'N4 bias corrected. Atlas images should be in the same orientation as the subject'
                              '(axial [RAI]). Atlases should be named atlas{NUMBER}_{MODALITY}.nii.gz. '
                              '{MODALITY} should match the strings entered in the "--modalities" argument. Example '
                              'atlas image names are atlas1_T1.nii.gz, atlas1_T2.nii.gz, atlas1_FL.nii.gz, atlas1_lesion.nii.gz, with '
                              'modalities as --modalities t1 t2 fl.')
-    parser.add_argument('--natlas', required=True, type=int,
+    parser.add_argument('--natlas', type=int, default=128,
                         help='Number of atlases to be used. The program will pick the first N atlases from the '
                              'atlas directory. The atlas directory must contain at least this many atlas sets.')
-    parser.add_argument('--psize', nargs='+', type=int, default=[100, 100],
+    parser.add_argument('--psize', nargs='+', type=int, default=[100, 100, 100],
                         help='Patch size, e.g. 25 25 25 (3D) or 100 100 (2D). Patch sizes are separated by space. '
                              'Note that bigger patches (such as 128x128) are possible in 2D models while it is '
                              'computationally expensive to use more than 25x25x25 patches. Default is [100, 100] which '
                              'will use 2D patches.')
-    parser.add_argument('--modalities', required=True, nargs='+',
+    parser.add_argument('--modalities', nargs='+', default=  ['T1', 'FL'],
                         help='A space separated string of input image modalities. This is used to determine the order '
                              'of images used in training. It also defines how many modalities will be used by training '
                              '(if the atlas directory contains more). Accepted modalities are T1/T1C/T2/PD/FL/FLC. T1C '
@@ -197,10 +197,10 @@ if __name__ == '__main__':
                         help='Mini-batch size to use per iteration. Usually 32-256 works well. '
                              'Optional argumet, if omitted, 64 is used as default. Both too large or too small '
                              'batches can incur in bad optimization.')
-    parser.add_argument('--epoch', type=int, default=20,
+    parser.add_argument('--epoch', type=int, default=50,
                         help='Number of epochs to train. Usually 10-20 works well. Optional argumet, '
                              'if omitted, 20 is used as default. Too large epochs can incur in overfitting.')
-    parser.add_argument('--outdir', required=True,
+    parser.add_argument('--outdir', default= "gs://flexconn-model/Checkpoints",
                         help='Output directory where the trained models are written.')
     parser.add_argument('--save', type=int, default=1,
                         help='When training with large number of epochs, the interim models can be saved after every N '
@@ -213,21 +213,21 @@ if __name__ == '__main__':
     parser.add_argument('--numgpu', type=int, default=1,
                         help='Number of GPUs to use for training. The program will use the first N visible GPUs. To '
                              'select specific gpus, use "--gpuids" ')
-    parser.add_argument('--gpuids', type=int, nargs='+',
+    parser.add_argument('--gpuids', type=int, nargs='+',default=None
                         help='Specifc GPUs to use for training, separated by space. E.g., --gpuids 3 4 5 ')
     parser.add_argument('--basefilters', type=int, default=8,
                         help='Sets the base number of filters for the models. 16 is appropriate for 12GB GPUs, where '
                              '8 may be more appropriate for 4GB cards. This value scales all filter banks (increasing '
                              'by 2 for a change from 8->16)')
-    parser.add_argument('--maxpatches', type=int, default=150000,
+    parser.add_argument('--maxpatches', type=int, default=50000,
                         help='Maximum number of patches to choose from each patient. 150000 is the default. This '
                              'is appropriate for 2D patches. 50000 may be more appropriate for 3D patches. This '
                              'value is abitrary and should be scaled to fit the available RAM.')
-    parser.add_argument('--loss', type=str, default='mse',
+    parser.add_argument('--loss', type=str, default='bce',
                         help="Loss function to be used during training. Available options are mae (mean absolute error), "
                              "mse(mean squared error), and bce (binary cross-entropy). If mse/mae are chosen, the "
                              "binary lesion masks are first blurred by a Gaussian to compute a membership.")
-    parser.add_argument('--initmodel', type=str, dest='INITMODEL', required=False,
+    parser.add_argument('--initmodel', type=str, dest='INITMODEL', default=None,
                         help='Existing trained model. If provided, the weights will be '
                              'used to initiate the training.')
                              
