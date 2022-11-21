@@ -2,7 +2,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 REQUIRED_PACKAGES = [
-    'tensorflow-gpu==2.0.0-alpha0',
+    'tensorflow-gpu==2.9.3',
     'h5py==2.10.0',
     'numpy>=1.11.0',
     'nibabel>=2.2.1',
